@@ -2,7 +2,7 @@
 ## Jordan Sanz and Catherine Parnell
 ##
 ## 8/6/2020
-## Cleaning and Present data load-in
+## Cleaning, Present data load-in, T-testing
 
 library(tidyverse)
 library(dplyr)
@@ -137,5 +137,108 @@ ggplot(people, aes(x=People, fill=InMajority)) + geom_bar(position="dodge") + th
   ) + scale_fill_manual(values=c("#4A76D6", "#D6644A")) + theme(
     text = element_text(family = "Times New Roman")
   )
+
+pink_mean = mean(df$Pink, na.rm = TRUE)
+green_mean = mean(df$Green, na.rm = TRUE)
+blue_mean = mean(df$Blue, na.rm = TRUE)
+orange_mean = mean(df$Orange, na.rm = TRUE)
+purple_mean = mean(df$Purple, na.rm = TRUE)
+yellow_mean = mean(df$Yellow, na.rm = TRUE)
+
+# jojo can u plot the means :)
+
+df <- df %>%
+  mutate(PinkNorm = (I.Count.Pink + MA1.Count.Pink + R.Count.Pink + C.Count.Pink) / Opinion.Length) %>%
+  mutate(GreenNorm = (I.Count.Green + MA1.Count.Green + R.Count.Green + C.Count.Green) / Opinion.Length) %>%
+  mutate(BlueNorm = (I.Count.Blue + MA1.Count.Blue + R.Count.Blue + C.Count.Blue) / Opinion.Length) %>%
+  mutate(OrangeNorm = (I.Count.Orange + MA1.Count.Orange + R.Count.Orange + C.Count.Orange) / Opinion.Length) %>%
+  mutate(PurpleNorm = (I.Count.Purple + MA1.Count.Purple + R.Count.Purple + C.Count.Purple) / Opinion.Length) %>%
+  mutate(YellowNorm = (I.Count.Yellow + MA1.Count.Yellow + R.Count.Yellow + C.Count.Yellow) / Opinion.Length)
+df
+
+pink_norm_mean = mean(df$PinkNorm, na.rm = TRUE)
+green_norm_mean = mean(df$GreenNorm, na.rm = TRUE)
+blue_norm_mean = mean(df$BlueNorm, na.rm = TRUE)
+orange_norm_mean = mean(df$OrangeNorm, na.rm = TRUE)
+purple_norm_mean = mean(df$PurpleNorm, na.rm = TRUE)
+yellow_norm_mean = mean(df$YellowNorm, na.rm = TRUE)
+
+# can u plot this too babe <3
+
+
+
+# comparing two highest categories: pragmatism and doctrinalism - not as statistically significant...
+pinkVgreen = t.test(df$Pink, df$Green)
+pinkNormVgreenNorm = t.test(df$PinkNorm, df$GreenNorm)
+
+# comparing pragmatism and originalism: common conceptions between conservative/liberal judges - extremely statistically significant !!
+blueVgreen = t.test(df$Blue, df$Green)
+blueNormVgreenNorm = t.test(df$BlueNorm, df$GreenNorm)
+
+# we can ask what others she is specifically curious about
+
+
+
+# comparing two highest categories: pragmatism and doctrinalism where yes v. no - even less statistically significant...
+pinkVgreenYes = t.test(df$Pink[df$Answer1 == 'Yes'], df$Green[df$Answer1 == 'Yes'])
+pinkNormVgreenNormYes = t.test(df$PinkNorm[df$Answer1 == 'Yes'], df$GreenNorm[df$Answer1 == 'Yes'])
+
+pinkVgreenNo = t.test(df$Pink[df$Answer1 == 'No'], df$Green[df$Answer1 == 'No'])
+pinkNormVgreenNormNo = t.test(df$PinkNorm[df$Answer1 == 'No'], df$GreenNorm[df$Answer1 == 'No'])
+
+# comparing pragmatism and originalism: where yes v. no - also extremely statistically significant !!
+blueVgreenYes = t.test(df$Blue[df$Answer1 == 'Yes'], df$Green[df$Answer1 == 'Yes'])
+blueNormVgreenNormYes = t.test(df$BlueNorm[df$Answer1 == 'Yes'], df$GreenNorm[df$Answer1 == 'Yes'])
+
+blueVgreenNo = t.test(df$Blue[df$Answer1 == 'No'], df$Green[df$Answer1 == 'No'])
+blueNormVgreenNormNo = t.test(df$BlueNorm[df$Answer1 == 'No'], df$GreenNorm[df$Answer1 == 'No'])
+
+
+
+# comparing two highest categories: pragmatism and doctrinalism based on vote split
+pinkVgreenSplit = t.test(df$Pink[df$Vote.Split == 1], df$Green[df$Vote.Split == 1])
+# this p value is significantly less *in comparison* so likely more difference
+pinkNormVgreenNormSplit = t.test(df$PinkNorm[df$Vote.Split == 1], df$GreenNorm[df$Vote.Split == 1])
+
+# p value for these surprisingly high, more likely to be more similar, insinuates more doctrinalism when speaking for majority
+pinkVgreenMaj = t.test(df$Pink[df$Vote.Split == 0], df$Green[df$Vote.Split == 0])
+pinkNormVgreenNormMaj= t.test(df$PinkNorm[df$Vote.Split == 0], df$GreenNorm[df$Vote.Split == 0])
+
+# comparing pragmatism and originalism: based on vote split not much change at all, still v significant
+blueVgreenSplit = t.test(df$Blue[df$Vote.Split == 1], df$Green[df$Vote.Split == 1])
+blueNormVgreenNormSplit = t.test(df$BlueNorm[df$Vote.Split == 1], df$GreenNorm[df$Vote.Split == 1])
+
+blueVgreenMaj = t.test(df$Blue[df$Vote.Split == 0], df$Green[df$Vote.Split == 0])
+blueNormVgreenNormMaj = t.test(df$BlueNorm[df$Vote.Split == 0], df$GreenNorm[df$Vote.Split == 0])
+
+
+# comparing pragmatism across yes/no and vote split variables
+greenVgreenYes =  t.test(df$Green, df$Green[df$Answer1 == 'Yes']) # not significant
+greenVgreenYesNorm =  t.test(df$GreenNorm, df$GreenNorm[df$Answer1 == 'Yes']) # not significant
+
+greenVgreenNo = t.test(df$Green, df$Green[df$Answer1 == 'No']) # even less significant
+greenVgreenNoNorm = t.test(df$GreenNorm, df$GreenNorm[df$Answer1 == 'No']) # even even less significant - basically the same
+
+greenVgreenSplit = t.test(df$Green, df$Green[df$Vote.Split == 1]) # significant: green < green split
+greenVgreenSplitNorm = t.test(df$GreenNorm, df$GreenNorm[df$Vote.Split == 1]) # not significant
+
+greenVgreenMaj = t.test(df$Green, df$Green[df$Vote.Split == 0]) # statistically significant: green > green maj
+greenVgreenMajNorm = t.test(df$GreenNorm, df$GreenNorm[df$Vote.Split == 0]) # not significant
+
+# comparing originalism across yes/no and vote split variables
+blueVblueYes =  t.test(df$Blue, df$Blue[df$Answer1 == 'Yes']) # not significant
+blueVblueYesNorm =  t.test(df$BlueNorm, df$BlueNorm[df$Answer1 == 'Yes']) # even less so
+
+blueVblueNo = t.test(df$Blue, df$Blue[df$Answer1 == 'No']) # not significant
+blueVblueNoNorm = t.test(df$BlueNorm, df$BlueNorm[df$Answer1 == 'No']) # even less so
+
+blueVblueSplit = t.test(df$Blue, df$Blue[df$Vote.Split == 1]) # not significant
+blueVblueSplitNorm = t.test(df$BlueNorm, df$BlueNorm[df$Vote.Split == 1]) # not significant
+
+blueVblueMaj = t.test(df$Blue, df$Blue[df$Vote.Split == 0]) # a little more so, but not significant
+blueVblueMajNorm = t.test(df$BlueNorm, df$BlueNorm[df$Vote.Split == 0]) # very much less significant
+
+
+
 
 
