@@ -11,6 +11,13 @@ library(ggplot2)
 library(extrafont)
 library(RColorBrewer)
 
+green <- "#189D1D"
+pink <- "#D824C1"
+yellow <-"#D4D824"
+orange <- "#D89F24"
+purple <-"#A824D8"
+blue <- "#244CD8"
+
 #setwd("/Users/catherineparnell/alito-research")
 
 df <- read.csv("AlitoDataset.csv")
@@ -83,6 +90,32 @@ ggplot(colors_totals, aes(x = Color, y=Count, fill = Color)) + geom_bar(stat="id
   )
 
 
+## plot for color sums over time
+
+df_grouped <- df %>%
+  group_by(Year) %>%
+  summarize(year_sum_green = sum(Green, na.rm=TRUE), year_sum_purple = sum(Purple, na.rm = TRUE), year_sum_pink = sum(Pink, na.rm = TRUE), year_sum_yellow = sum(Yellow, na.rm = TRUE), year_sum_orange = sum(Orange, na.rm = TRUE), year_sum_blue = sum(Blue, na.rm = TRUE)) %>%
+  gather(-Year, key="Color", value="Sum")
+
+colors_over_time <- ggplot(df_grouped, aes(x = as.factor(Year), y = Sum, color = Color, group=Color)) + geom_line(size = 1) + theme_classic() + 
+  theme(
+    text = element_text(family = "Times New Roman"),
+    legend.position = "None"
+  ) +
+  scale_color_manual(values = c(blue, green, orange, pink, purple, yellow)) +
+  labs(
+    x = "Year",
+    y = "Yearly Sum (Not Cumulative)",
+    title = "Sum of Colors Per Year"
+  )
+
+colors_over_time
+
+faceted_colors_over_time <- colors_over_time + facet_wrap(~Color)
+
+faceted_colors_over_time
+
+
 # plot for year present data
 
 
@@ -146,6 +179,34 @@ purple_mean = mean(df$Purple, na.rm = TRUE)
 yellow_mean = mean(df$Yellow, na.rm = TRUE)
 
 # jojo can u plot the means :)
+mean_dataframe <- data.frame(pink_mean, green_mean, blue_mean, orange_mean, purple_mean, yellow_mean)
+mean_dataframe <- mean_dataframe %>%
+  gather(key="Color", value="Mean") %>%
+  mutate(Color = case_when(
+    Color == "green_mean" ~ "Green",
+    Color == "pink_mean" ~ "Pink",
+    Color == "yellow_mean" ~ "Yellow",
+    Color == "orange_mean" ~ "Orange",
+    Color == "purple_mean" ~ "Purple",
+    Color == "blue_mean" ~ "Blue",
+  )) %>%
+  mutate(Color = fct_relevel(Color, "Green", "Pink", "Yellow", "Orange", "Purple", "Blue"))
+mean_dataframe
+
+ggplot(mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + theme_classic() +
+  scale_fill_manual(values = c("#189D1D", "#D824C1", "#D4D824", "#D89F24", "#A824D8", "#244CD8")) + 
+  theme(
+    text = element_text(family = "Times New Roman"),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Mean of Colors Overall",
+    x = "Color",
+    y = "Mean"
+  )
+
+
+
 
 df <- df %>%
   mutate(PinkNorm = (I.Count.Pink + MA1.Count.Pink + R.Count.Pink + C.Count.Pink) / Opinion.Length) %>%
@@ -154,7 +215,7 @@ df <- df %>%
   mutate(OrangeNorm = (I.Count.Orange + MA1.Count.Orange + R.Count.Orange + C.Count.Orange) / Opinion.Length) %>%
   mutate(PurpleNorm = (I.Count.Purple + MA1.Count.Purple + R.Count.Purple + C.Count.Purple) / Opinion.Length) %>%
   mutate(YellowNorm = (I.Count.Yellow + MA1.Count.Yellow + R.Count.Yellow + C.Count.Yellow) / Opinion.Length)
-df
+
 
 pink_norm_mean = mean(df$PinkNorm, na.rm = TRUE)
 green_norm_mean = mean(df$GreenNorm, na.rm = TRUE)
@@ -165,7 +226,36 @@ yellow_norm_mean = mean(df$YellowNorm, na.rm = TRUE)
 
 # can u plot this too babe <3
 
+norm_mean_dataframe <- data.frame(pink_norm_mean, green_norm_mean, blue_norm_mean, orange_norm_mean, purple_norm_mean, yellow_norm_mean)
+norm_mean_dataframe <- norm_mean_dataframe %>%
+  gather(key="Color", value="Mean") %>%
+  mutate(Color = case_when(
+    Color == "green_norm_mean" ~ "Green",
+    Color == "pink_norm_mean" ~ "Pink",
+    Color == "yellow_norm_mean" ~ "Yellow",
+    Color == "orange_norm_mean" ~ "Orange",
+    Color == "purple_norm_mean" ~ "Purple",
+    Color == "blue_norm_mean" ~ "Blue",
+  )) %>%
+  mutate(Color = fct_relevel(Color, "Green", "Pink", "Yellow", "Orange", "Purple", "Blue"))
+norm_mean_dataframe
 
+ggplot(norm_mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + theme_classic() +
+  scale_fill_manual(values = c("#189D1D", "#D824C1", "#D4D824", "#D89F24", "#A824D8", "#244CD8")) + 
+  theme(
+    text = element_text(family = "Times New Roman"),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Normalized Mean of Colors Overall",
+    x = "Color",
+    y = "Mean"
+  )
+
+
+
+
+#plotted ;)
 
 # comparing two highest categories: pragmatism and doctrinalism - not as statistically significant...
 pinkVgreen = t.test(df$Pink, df$Green)
