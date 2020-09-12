@@ -273,6 +273,46 @@ purpleNormVyellowNorm = t.test(df$PurpleNorm, df$YellowNorm) # also statisticall
 # we can ask what others she is specifically curious about
 
 # main argument vs rebuttal: overall do any of the color change proportions shift
+df <- df %>%
+  mutate(PinkMainNorm = (MA1.Count.Pink) / MA1.Length) %>%
+  mutate(GreenMainNorm = (MA1.Count.Green) / MA1.Length) %>%
+  mutate(BlueMainNorm = (MA1.Count.Blue) / MA1.Length) %>%
+  mutate(OrangeMainNorm = (MA1.Count.Orange) / MA1.Length) %>%
+  mutate(PurpleMainNorm = (MA1.Count.Purple) / MA1.Length) %>%
+  mutate(YellowMainNorm = (MA1.Count.Yellow) / MA1.Length)
+
+df <- df %>%
+  mutate(PinkRebNorm = (R.Count.Pink) / R.Length) %>%
+  mutate(GreenRebNorm = (R.Count.Green) / R.Length) %>%
+  mutate(BlueRebNorm = (R.Count.Blue) / R.Length) %>%
+  mutate(OrangeRebNorm = (R.Count.Orange) / R.Length) %>%
+  mutate(PurpleRebNorm = (R.Count.Purple) / R.Length) %>%
+  mutate(YellowRebNorm = (R.Count.Yellow) / R.Length)
+
+# na's in main argument/rebuttal length
+# 5 in MA length and 4 in R length
+
+df %>% filter(is.na(R.Length)) %>% select(Case.Name)
+df %>% filter(is.na(MA1.Length)) %>% select(Case.Name)
+
+pinkMainVpinkReb = t.test(df$MA1.Count.Pink, df$R.Count.Pink) # 0.002, main argument > rebuttal
+pinkMainVpinkRebNorm = t.test(df$PinkMainNorm, df$PinkRebNorm)
+
+greenMainVgreenReb = t.test(df$MA1.Count.Green, df$R.Count.Green) # 0.56, ma = r
+greenMainVgreenRebNorm = t.test(df$GreenMainNorm, df$GreenRebNorm)
+
+blueMainVblueReb = t.test(df$MA1.Count.Blue, df$R.Count.Blue) # 0.52 ma = r
+blueMainVblueRebNorm = t.test(df$BlueMainNorm, df$BlueRebNorm)
+
+yellowMainVyellowReb = t.test(df$MA1.Count.Yellow, df$R.Count.Yellow) # 0.09 ma ~= r
+yellowMainVyellowRebNorm = t.test(df$YellowMainNorm, df$YellowRebNorm)
+
+purpleMainVpurpleReb = t.test(df$MA1.Count.Purple, df$R.Count.Purple) # 0.06 ma ~= r
+purpleMainVpurpleRebNorm = t.test(df$PurpleMainNorm, df$PurpleRebNorm)
+
+orangeMainVorangeReb = t.test(df$MA1.Count.Orange, df$R.Count.Orange) # 0.03 ma > r
+orangeMainVorangeRebNorm = t.test(df$OrangeMainNorm, df$OrangeRebNorm)
+
 # categories for types of cases - are they really that much outliers? anything overall different about how color graphs look for those particular cases
 
 # comparing two highest categories: pragmatism and doctrinalism where yes v. no - even less statistically significant...
