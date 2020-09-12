@@ -18,7 +18,7 @@ orange <- "#D89F24"
 purple <-"#A824D8"
 blue <- "#244CD8"
 
-#setwd("/Users/catherineparnell/alito-research")
+setwd("/Users/catherineparnell/alito-research")
 
 df <- read.csv("AlitoDataset.csv")
 
@@ -265,9 +265,15 @@ pinkNormVgreenNorm = t.test(df$PinkNorm, df$GreenNorm)
 blueVgreen = t.test(df$Blue, df$Green)
 blueNormVgreenNorm = t.test(df$BlueNorm, df$GreenNorm)
 
+pinkNormVyellowNorm = t.test(df$PinkNorm, df$YellowNorm) # doctrinalism v textualism: no question that he uses case law far more than textualism: super small p value
+greenNormVyellowNorm = t.test(df$GreenNorm, df$YellowNorm) # also extremely statistically significant
+blueNormVyellowNorm = t.test(df$BlueNorm, df$YellowNorm) # also extremely statistically significant
+purpleNormVyellowNorm = t.test(df$PurpleNorm, df$YellowNorm) # also statistically significant
+
 # we can ask what others she is specifically curious about
 
-
+# main argument vs rebuttal: overall do any of the color change proportions shift
+# categories for types of cases - are they really that much outliers? anything overall different about how color graphs look for those particular cases
 
 # comparing two highest categories: pragmatism and doctrinalism where yes v. no - even less statistically significant...
 pinkVgreenYes = t.test(df$Pink[df$Answer1 == 'Yes'], df$Green[df$Answer1 == 'Yes'])
@@ -285,16 +291,16 @@ blueNormVgreenNormNo = t.test(df$BlueNorm[df$Answer1 == 'No'], df$GreenNorm[df$A
 
 
 
-# comparing two highest categories: pragmatism and doctrinalism based on vote split
+# comparing two highest categories: pragmatism and doctrinalism based on vote split (contentious)
 pinkVgreenSplit = t.test(df$Pink[df$Vote.Split == 1], df$Green[df$Vote.Split == 1])
 # this p value is significantly less *in comparison* so likely more difference
 pinkNormVgreenNormSplit = t.test(df$PinkNorm[df$Vote.Split == 1], df$GreenNorm[df$Vote.Split == 1])
 
-# p value for these surprisingly high, more likely to be more similar, insinuates more doctrinalism when speaking for majority
+# p value for these surprisingly high, more likely to be more similar, insinuates more doctrinalism when speaking for unanimous majority
 pinkVgreenMaj = t.test(df$Pink[df$Vote.Split == 0], df$Green[df$Vote.Split == 0])
 pinkNormVgreenNormMaj= t.test(df$PinkNorm[df$Vote.Split == 0], df$GreenNorm[df$Vote.Split == 0])
 
-# comparing pragmatism and originalism: based on vote split not much change at all, still v significant
+# comparing pragmatism and originalism: based on vote split not much change at all, still not significant
 blueVgreenSplit = t.test(df$Blue[df$Vote.Split == 1], df$Green[df$Vote.Split == 1])
 blueNormVgreenNormSplit = t.test(df$BlueNorm[df$Vote.Split == 1], df$GreenNorm[df$Vote.Split == 1])
 
