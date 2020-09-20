@@ -288,11 +288,11 @@ mainvsreb <- df %>%
 mainvsreb
 
 ## Main argument vs rebuttal color changes plot
-ggplot(mainvsreb, aes(x = Color, y=Value, fill=Type)) + geom_bar(stat="identity", position="dodge")+ scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
+ggplot(mainvsreb, aes(x = Argument, y=Value, fill=Color)) + geom_bar(stat="identity", position="dodge")+ scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
   theme(
     text = element_text(family = "Times New Roman"),
   ) +
-  scale_fill_manual(values = c(blue, blueR, green, greenR, orange, orangeR, pink, pinkR, purple, purpleR, yellow, yellowR
+  scale_fill_manual(values = c(blue, green, orange, pink, purple, yellow
                               )) +
   scale_color_manual(values = c(maOutline, rOutline)) + 
   labs(
