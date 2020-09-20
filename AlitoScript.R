@@ -18,7 +18,16 @@ orange <- "#D89F24"
 purple <-"#A824D8"
 blue <- "#244CD8"
 
-setwd("/Users/catherineparnell/alito-research")
+greenR <- "#156e18"
+pinkR <- "#ab1b99"
+yellowR <- "#afb31e"
+orangeR <- "#b0821e"
+purpleR <- "#8219a8"
+blueR <- "#1c3799"
+
+rOutline <- "#000000"
+maOutline <- "#dbdbdb"
+#setwd("/Users/catherineparnell/alito-research")
 
 df <- read.csv("AlitoDataset.csv")
 
@@ -49,6 +58,26 @@ df <- df %>%
   mutate(Gorsuch = if_else(str_detect(Majority, "Gorsuch"), 1, 
                            if_else(str_detect(Dissent, "Gorsuch"), 0, 2)))
 df$Characterized.Answer
+
+## Create flag for type of case
+df <- df %>%
+  mutate(StatutoryFlag = case_when(
+    str_detect(Case.Type, "Statutory") ~ 1,
+    TRUE ~ 0,
+  )) %>%
+  mutate(ConstitutionalFlag = case_when(
+    str_detect(Case.Type, "Constitutional") ~ 1,
+    TRUE ~ 0,
+  )) %>%
+  mutate(CommonLawFlag = case_when(
+    str_detect(Case.Type, "Common Law") ~ 1,
+    TRUE ~ 0,
+  )) %>%
+  mutate(CivProFlag = case_when(
+    str_detect(Case.Type, "Civ Pro") ~ 1,
+    TRUE ~ 0,
+  ))
+df
 
 # creates answer flag and splits answers when 2
 df <- df %>%
@@ -87,13 +116,13 @@ ggplot(colors_totals, aes(x = Color, y=Count, fill = Color)) + geom_bar(stat="id
        y="Count") + theme_classic() + scale_fill_manual(values = c("#23A635", "#DC31D7", "#DCD431", "#DC8731", "#8E2BC5", "#2B5EC5")) + 
   theme(
     text = element_text(family="Times New Roman")
-  )
+  ) + scale_y_continuous(expand = expansion(mult = c(0, .1)))
 
 
 ## plot for color sums over time
 
 df_grouped <- df %>%
-  group_by(Year) %>%
+  group_by(Year)%>%
   summarize(year_sum_green = sum(Green, na.rm=TRUE), year_sum_purple = sum(Purple, na.rm = TRUE), year_sum_pink = sum(Pink, na.rm = TRUE), year_sum_yellow = sum(Yellow, na.rm = TRUE), year_sum_orange = sum(Orange, na.rm = TRUE), year_sum_blue = sum(Blue, na.rm = TRUE)) %>%
   gather(-Year, key="Color", value="Sum")
 
@@ -118,18 +147,18 @@ faceted_colors_over_time
 
 # plot for year present data
 
-
 getPalette = colorRampPalette(brewer.pal(9, "Blues"))
 
-ggplot(df, aes(x = as.factor(Year), fill=as.factor(Year))) + geom_bar() + labs(title="Present Years Data", x="Year", y="Count") + theme_classic() + 
+ggplot(df, aes(x = as.factor(Year), fill=as.factor(Year))) + scale_y_continuous(expand = expansion(mult = c(0, .1))) + geom_bar() + labs(title="Present Years Data", x="Year", y="Count") + theme_classic() + 
   theme(
   legend.position= "none",
   text = element_text(family = "Times New Roman")
 ) + scale_fill_manual(values=c("#57B0D0", "#52A2C7", "#4C94BE", "#4786B5", "#4278AC", "#3C6AA3", "#375B9B", "#314D92", "#2C3F89", "#273180", "#212377", "#1C156E"))
 
+
 # makes labels for vote splits
 df <- df %>%
-  mutate(Vote.Split = case_when(
+  mutate(Vote.SplitLabel = case_when(
     Vote.Split == 0 ~ "Unanimous",
     Vote.Split == 1 ~ "Contentious",
     Vote.Split == 2 ~ "Ambiguous"
@@ -137,7 +166,7 @@ df <- df %>%
 
 
 ## plots vote split frequency
-ggplot(df, aes(x=as.factor(Vote.Split), fill=as.factor(Vote.Split))) + geom_bar() + labs(
+ggplot(df, aes(x=as.factor(Vote.SplitLabel), fill=as.factor(Vote.SplitLabel))) + geom_bar() + scale_y_continuous(expand = expansion(mult = c(0, .1))) + labs(
   title="Count of Vote Splits in Data",
   x = "Vote Split Type",
   y = "Count",
@@ -160,8 +189,9 @@ people <- df %>%
   mutate(People = fct_relevel(People, "Kennedy", "Roberts", "Thomas","Scalia", "Breyer", "Ginsburg", "Kagan", "Sotomayor", "Stevens", "Souter", "Gorsuch"))
 people
 
+
 # plots majority barplot
-ggplot(people, aes(x=People, fill=InMajority)) + geom_bar(position="dodge") + theme_classic() +
+ggplot(people, aes(x=People, fill=InMajority)) + geom_bar(position="dodge") + scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
   labs(
     x="Justice",
     y="Number of Cases",
@@ -178,7 +208,7 @@ orange_mean = mean(df$Orange, na.rm = TRUE)
 purple_mean = mean(df$Purple, na.rm = TRUE)
 yellow_mean = mean(df$Yellow, na.rm = TRUE)
 
-# jojo can u plot the means :)
+
 mean_dataframe <- data.frame(pink_mean, green_mean, blue_mean, orange_mean, purple_mean, yellow_mean)
 mean_dataframe <- mean_dataframe %>%
   gather(key="Color", value="Mean") %>%
@@ -193,7 +223,7 @@ mean_dataframe <- mean_dataframe %>%
   mutate(Color = fct_relevel(Color, "Green", "Pink", "Yellow", "Orange", "Purple", "Blue"))
 mean_dataframe
 
-ggplot(mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + theme_classic() +
+ggplot(mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
   scale_fill_manual(values = c("#189D1D", "#D824C1", "#D4D824", "#D89F24", "#A824D8", "#244CD8")) + 
   theme(
     text = element_text(family = "Times New Roman"),
@@ -207,14 +237,69 @@ ggplot(mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identi
 
 
 
-
 df <- df %>%
+  
+  # total normalization
   mutate(PinkNorm = (I.Count.Pink + MA1.Count.Pink + R.Count.Pink + C.Count.Pink) / Opinion.Length) %>%
   mutate(GreenNorm = (I.Count.Green + MA1.Count.Green + R.Count.Green + C.Count.Green) / Opinion.Length) %>%
   mutate(BlueNorm = (I.Count.Blue + MA1.Count.Blue + R.Count.Blue + C.Count.Blue) / Opinion.Length) %>%
   mutate(OrangeNorm = (I.Count.Orange + MA1.Count.Orange + R.Count.Orange + C.Count.Orange) / Opinion.Length) %>%
   mutate(PurpleNorm = (I.Count.Purple + MA1.Count.Purple + R.Count.Purple + C.Count.Purple) / Opinion.Length) %>%
-  mutate(YellowNorm = (I.Count.Yellow + MA1.Count.Yellow + R.Count.Yellow + C.Count.Yellow) / Opinion.Length)
+  mutate(YellowNorm = (I.Count.Yellow + MA1.Count.Yellow + R.Count.Yellow + C.Count.Yellow) / Opinion.Length) %>%
+  
+  # Main argument normalization
+  mutate(PinkMA1Norm = MA1.Count.Pink / MA1.Length) %>%
+  mutate(GreenMA1Norm = MA1.Count.Green / MA1.Length) %>%
+  mutate(BlueMA1Norm = MA1.Count.Blue / MA1.Length) %>%
+  mutate(OrangeMA1Norm = MA1.Count.Orange / MA1.Length) %>%
+  mutate(PurpleMA1Norm = MA1.Count.Purple / MA1.Length) %>%
+  mutate(YellowMA1Norm = MA1.Count.Yellow / MA1.Length) %>%
+  
+  # Rebuttal normalization
+  mutate(PinkRebuttalNorm = R.Count.Pink / R.Length) %>%
+  mutate(GreenRebuttalNorm = R.Count.Green / R.Length) %>%
+  mutate(BlueRebuttalNorm = R.Count.Blue / R.Length) %>%
+  mutate(OrangeRebuttalNorm = R.Count.Orange / R.Length) %>%
+  mutate(PurpleRebuttalNorm = R.Count.Purple / R.Length) %>%
+  mutate(YellowRebuttalNorm = R.Count.Yellow / R.Length)
+  
+
+# Main argument vs rebuttal data frame creation
+mainvsreb <- df %>%
+  filter(R.Length > 0) %>%
+  select(PinkMA1Norm, PinkRebuttalNorm, GreenMA1Norm, GreenRebuttalNorm, BlueMA1Norm, BlueRebuttalNorm,
+         OrangeMA1Norm, OrangeRebuttalNorm, PurpleMA1Norm, PurpleRebuttalNorm, YellowMA1Norm, YellowRebuttalNorm) %>%
+  summarize(PinkMA = sum(PinkMA1Norm), PinkRebuttal = sum(PinkRebuttalNorm), GreenMA = sum(GreenMA1Norm), GreenRebuttal = sum(GreenRebuttalNorm), 
+            BlueMA = sum(BlueMA1Norm), BlueRebuttal = sum(BlueRebuttalNorm), OrangeMA = sum(OrangeMA1Norm), OrangeRebuttal = sum(OrangeRebuttalNorm), 
+            PurpleMA = sum(PurpleMA1Norm), PurpleRebuttal = sum(PurpleRebuttalNorm), YellowMA = sum(YellowMA1Norm), YellowRebuttal = sum(YellowRebuttalNorm)) %>%
+  gather(key="Type", val="Value") %>%
+  mutate(Color = case_when(
+    str_detect(Type, "Pink") ~ "Pink",
+    str_detect(Type, "Green") ~ "Green",
+    str_detect(Type, "Blue") ~ "Blue",
+    str_detect(Type, "Orange") ~ "Orange",
+    str_detect(Type, "Purple") ~ "Purple",
+    str_detect(Type, "Yellow") ~ "Yellow"
+  )) %>%
+  mutate(Argument = case_when(
+    str_detect(Type, "MA") ~ "Main Argument",
+    str_detect(Type, "Rebuttal") ~ "Rebuttal",
+  ))
+mainvsreb
+
+## Main argument vs rebuttal color changes plot
+ggplot(mainvsreb, aes(x = Color, y=Value, fill=Type)) + geom_bar(stat="identity", position="dodge")+ scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
+  theme(
+    text = element_text(family = "Times New Roman"),
+  ) +
+  scale_fill_manual(values = c(blue, blueR, green, greenR, orange, orangeR, pink, pinkR, purple, purpleR, yellow, yellowR
+                              )) +
+  scale_color_manual(values = c(maOutline, rOutline)) + 
+  labs(
+    title = "Main Argument vs Rebuttal Color Changes, Normalized",
+    x = "Color",
+    y = "Normalized Line Count"
+  )
 
 
 pink_norm_mean = mean(df$PinkNorm, na.rm = TRUE)
@@ -223,8 +308,6 @@ blue_norm_mean = mean(df$BlueNorm, na.rm = TRUE)
 orange_norm_mean = mean(df$OrangeNorm, na.rm = TRUE)
 purple_norm_mean = mean(df$PurpleNorm, na.rm = TRUE)
 yellow_norm_mean = mean(df$YellowNorm, na.rm = TRUE)
-
-# can u plot this too babe <3
 
 norm_mean_dataframe <- data.frame(pink_norm_mean, green_norm_mean, blue_norm_mean, orange_norm_mean, purple_norm_mean, yellow_norm_mean)
 norm_mean_dataframe <- norm_mean_dataframe %>%
@@ -240,7 +323,7 @@ norm_mean_dataframe <- norm_mean_dataframe %>%
   mutate(Color = fct_relevel(Color, "Green", "Pink", "Yellow", "Orange", "Purple", "Blue"))
 norm_mean_dataframe
 
-ggplot(norm_mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + theme_classic() +
+ggplot(norm_mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="identity") + scale_y_continuous(expand = expansion(mult = c(0, .1))) + theme_classic() +
   scale_fill_manual(values = c("#189D1D", "#D824C1", "#D4D824", "#D89F24", "#A824D8", "#244CD8")) + 
   theme(
     text = element_text(family = "Times New Roman"),
@@ -252,10 +335,89 @@ ggplot(norm_mean_dataframe, aes(x=Color, y=Mean, fill=Color)) + geom_bar(stat="i
     y = "Mean"
   )
 
+## Case type color totals
+df <- df %>%
+  mutate(PinkStat = if_else(StatutoryFlag == 1, PinkNorm, 0),
+         PinkConst = if_else(ConstitutionalFlag == 1, PinkNorm, 0),
+         PinkCivPro = if_else(CivProFlag == 1, PinkNorm, 0),
+         PinkCommon = if_else(CommonLawFlag == 1, PinkNorm, 0),
+         
+         GreenStat = if_else(StatutoryFlag == 1, GreenNorm, 0),
+         GreenConst = if_else(ConstitutionalFlag == 1, GreenNorm, 0),
+         GreenCivPro = if_else(CivProFlag == 1, GreenNorm, 0),
+         GreenCommon = if_else(CommonLawFlag == 1, GreenNorm, 0),
+         
+         BlueStat = if_else(StatutoryFlag == 1, BlueNorm, 0),
+         BlueConst = if_else(ConstitutionalFlag == 1, BlueNorm, 0),
+         BlueCivPro = if_else(CivProFlag == 1, BlueNorm, 0),
+         BlueCommon = if_else(CommonLawFlag == 1, BlueNorm, 0),
+         
+         OrangeStat = if_else(StatutoryFlag == 1, OrangeNorm, 0),
+         OrangeConst = if_else(ConstitutionalFlag == 1, OrangeNorm, 0),
+         OrangeCivPro = if_else(CivProFlag == 1, OrangeNorm, 0),
+         OrangeCommon = if_else(CommonLawFlag == 1, OrangeNorm, 0),
+         
+         PurpleStat = if_else(StatutoryFlag == 1, PurpleNorm, 0),
+         PurpleConst = if_else(ConstitutionalFlag == 1, PurpleNorm, 0),
+         PurpleCivPro = if_else(CivProFlag == 1, PurpleNorm, 0),
+         PurpleCommon = if_else(CommonLawFlag == 1, PurpleNorm, 0),
+         
+         YellowStat = if_else(StatutoryFlag == 1, YellowNorm, 0),
+         YellowConst = if_else(ConstitutionalFlag == 1, YellowNorm, 0),
+         YellowCivPro = if_else(CivProFlag == 1, YellowNorm, 0),
+         YellowCommon = if_else(CommonLawFlag == 1, YellowNorm, 0),
+  )
+
+CaseTypeDataframe <- df %>%
+  summarize(PinkStat = sum(PinkStat, na.rm=TRUE), PinkCommon = sum(PinkCommon, na.rm=TRUE), 
+            PinkConst = sum(PinkConst, na.rm=TRUE), PinkCivPro = sum(PinkCivPro, na.rm=TRUE),
+            
+            GreenStat = sum(GreenStat, na.rm=TRUE), GreenCommon = sum(GreenCommon, na.rm=TRUE), 
+            GreenConst = sum(GreenConst, na.rm=TRUE), GreenCivPro = sum(GreenCivPro, na.rm=TRUE),
+            
+            BlueStat = sum(BlueStat, na.rm=TRUE), BlueCommon = sum(BlueCommon, na.rm=TRUE), 
+            BlueConst = sum(BlueConst, na.rm=TRUE), BlueCivPro = sum(BlueCivPro, na.rm=TRUE),
+            
+            OrangeStat = sum(OrangeStat, na.rm=TRUE), OrangeCommon = sum(OrangeCommon, na.rm=TRUE), 
+            OrangeConst = sum(OrangeConst, na.rm=TRUE), OrangeCivPro = sum(OrangeCivPro, na.rm=TRUE),
+            
+            PurpleStat = sum(PurpleStat, na.rm=TRUE), PurpleCommon = sum(PurpleCommon, na.rm=TRUE), 
+            PurpleConst = sum(PurpleConst, na.rm=TRUE), PurpleCivPro = sum(PurpleCivPro, na.rm=TRUE),
+            
+            YellowStat = sum(YellowStat, na.rm=TRUE), YellowCommon = sum(YellowCommon, na.rm=TRUE), 
+            YellowConst = sum(YellowConst, na.rm=TRUE), YellowCivPro = sum(YellowCivPro, na.rm=TRUE),
+  ) %>%
+  gather(key="Descriptor", value = "Value") %>%
+  mutate(Color = case_when(
+    str_detect(Descriptor, "Pink") ~ "Pink",
+    str_detect(Descriptor, "Green") ~ "Green",
+    str_detect(Descriptor, "Blue") ~ "Blue",
+    str_detect(Descriptor, "Orange") ~ "Orange",
+    str_detect(Descriptor, "Purple") ~ "Purple",
+    str_detect(Descriptor, "Yellow") ~ "Yellow"
+  )) %>%
+  mutate(CaseType = case_when(
+    str_detect(Descriptor, "Stat") ~ "Statutory",
+    str_detect(Descriptor, "Const") ~ "Constitutional",
+    str_detect(Descriptor, "Common") ~  "Common Law",
+    str_detect(Descriptor, "CivPro") ~ "Civ Pro"
+  ))
+
+CaseTypeDataframe
+
+ggplot(CaseTypeDataframe, aes(x = CaseType, y=Value, fill = Color)) + geom_bar(stat="identity", position="dodge") +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+  theme_classic() + theme(
+    text = element_text(family = "Times New Roman"),
+  ) + scale_fill_manual(values = c(blue, green, orange, pink, purple, yellow)) +
+  labs(
+    title = "Case Type Color Prevalence, Normalized",
+    x = "Case Type",
+    y = "Normalized Line Count",
+    legend = "Color"
+  )
 
 
-
-#plotted ;)
 
 # comparing two highest categories: pragmatism and doctrinalism - not as statistically significant...
 pinkVgreen = t.test(df$Pink, df$Green)
@@ -273,46 +435,6 @@ purpleNormVyellowNorm = t.test(df$PurpleNorm, df$YellowNorm) # also statisticall
 # we can ask what others she is specifically curious about
 
 # main argument vs rebuttal: overall do any of the color change proportions shift
-df <- df %>%
-  mutate(PinkMainNorm = (MA1.Count.Pink) / MA1.Length) %>%
-  mutate(GreenMainNorm = (MA1.Count.Green) / MA1.Length) %>%
-  mutate(BlueMainNorm = (MA1.Count.Blue) / MA1.Length) %>%
-  mutate(OrangeMainNorm = (MA1.Count.Orange) / MA1.Length) %>%
-  mutate(PurpleMainNorm = (MA1.Count.Purple) / MA1.Length) %>%
-  mutate(YellowMainNorm = (MA1.Count.Yellow) / MA1.Length)
-
-df <- df %>%
-  mutate(PinkRebNorm = (R.Count.Pink) / R.Length) %>%
-  mutate(GreenRebNorm = (R.Count.Green) / R.Length) %>%
-  mutate(BlueRebNorm = (R.Count.Blue) / R.Length) %>%
-  mutate(OrangeRebNorm = (R.Count.Orange) / R.Length) %>%
-  mutate(PurpleRebNorm = (R.Count.Purple) / R.Length) %>%
-  mutate(YellowRebNorm = (R.Count.Yellow) / R.Length)
-
-# na's in main argument/rebuttal length
-# 5 in MA length and 4 in R length
-
-df %>% filter(is.na(R.Length)) %>% select(Case.Name)
-df %>% filter(is.na(MA1.Length)) %>% select(Case.Name)
-
-pinkMainVpinkReb = t.test(df$MA1.Count.Pink, df$R.Count.Pink) # 0.002, main argument > rebuttal
-pinkMainVpinkRebNorm = t.test(df$PinkMainNorm, df$PinkRebNorm)
-
-greenMainVgreenReb = t.test(df$MA1.Count.Green, df$R.Count.Green) # 0.56, ma = r
-greenMainVgreenRebNorm = t.test(df$GreenMainNorm, df$GreenRebNorm)
-
-blueMainVblueReb = t.test(df$MA1.Count.Blue, df$R.Count.Blue) # 0.52 ma = r
-blueMainVblueRebNorm = t.test(df$BlueMainNorm, df$BlueRebNorm)
-
-yellowMainVyellowReb = t.test(df$MA1.Count.Yellow, df$R.Count.Yellow) # 0.09 ma ~= r
-yellowMainVyellowRebNorm = t.test(df$YellowMainNorm, df$YellowRebNorm)
-
-purpleMainVpurpleReb = t.test(df$MA1.Count.Purple, df$R.Count.Purple) # 0.06 ma ~= r
-purpleMainVpurpleRebNorm = t.test(df$PurpleMainNorm, df$PurpleRebNorm)
-
-orangeMainVorangeReb = t.test(df$MA1.Count.Orange, df$R.Count.Orange) # 0.03 ma > r
-orangeMainVorangeRebNorm = t.test(df$OrangeMainNorm, df$OrangeRebNorm)
-
 # categories for types of cases - are they really that much outliers? anything overall different about how color graphs look for those particular cases
 
 # comparing two highest categories: pragmatism and doctrinalism where yes v. no - even less statistically significant...
